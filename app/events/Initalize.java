@@ -45,8 +45,8 @@ public class Initalize implements EventProcessor{
 		//Loaders_2024_Check.test(out);
 	
 		// draw the 9x5 board
-        for (int x = 0; x < 9; x++) {
-            for (int y = 0; y < 5; y++) {
+        for (int x = 1; x <= 9; x++) {
+            for (int y = 1; y <= 5; y++) {
                 // create tile
                 Tile tile = BasicObjectBuilders.loadTile(x, y);
                 
@@ -97,7 +97,7 @@ public class Initalize implements EventProcessor{
         );
         
         // get the tile where avatar will be placed
-        Tile p1AvatarTile = gameState.getTile(1, 2);
+        Tile p1AvatarTile = gameState.getTile(2, 3);
         
         // set unit's pixel position to match tile
         p1AvatarUnit.setPositionByTile(p1AvatarTile);
@@ -106,7 +106,7 @@ public class Initalize implements EventProcessor{
         GameUnit p1Avatar = new GameUnit(p1AvatarUnit, 1, 2, 20, true);
         
         // place on board and store reference
-        gameState.placeUnit(1, 2, p1Avatar);
+        gameState.placeUnit(2, 3, p1Avatar);
         gameState.setPlayer1Avatar(p1Avatar);
 
         // draw on screen
@@ -132,12 +132,12 @@ public class Initalize implements EventProcessor{
             Unit.class
         );
         
-        Tile p2AvatarTile = gameState.getTile(7, 2);
+        Tile p2AvatarTile = gameState.getTile(8, 3);
         p2AvatarUnit.setPositionByTile(p2AvatarTile);
         
         GameUnit p2Avatar = new GameUnit(p2AvatarUnit, 2, 2, 20, true);
         
-        gameState.placeUnit(7, 2, p2Avatar);
+        gameState.placeUnit(8, 3, p2Avatar);
         gameState.setPlayer2Avatar(p2Avatar);
 
         BasicCommands.drawUnit(out, p2AvatarUnit, p2AvatarTile);
@@ -149,15 +149,40 @@ public class Initalize implements EventProcessor{
         BasicCommands.setUnitHealth(out, p2AvatarUnit, 20);
         try { Thread.sleep(50); } catch (InterruptedException e) { e.printStackTrace(); }
 
+		// // ----------------------
+		// // Sprint1 combat test unit (TEMP)
+		// // ----------------------
+
+		// int testUnitId = gameState.getAndIncrementUnitId();
+
+		// Unit testEnemyUnit = BasicObjectBuilders.loadUnit(
+		// 	StaticConfFiles.aiAvatar,
+		// 	testUnitId,
+		// 	Unit.class
+		// );
+
+		// // put a temp AI test unit near P1 avatar (3,3)
+		// Tile testTile = gameState.getTile(3, 3);
+		// testEnemyUnit.setPositionByTile(testTile);
+
+		// // GameUnit wrapper (owner=2, attack=2, health=2, not avatar)
+		// GameUnit testEnemy = new GameUnit(testEnemyUnit, 2, 2, 2, false);
+
+		// gameState.placeUnit(3, 3, testEnemy);
+
+		// BasicCommands.drawUnit(out, testEnemyUnit, testTile);
+		// BasicCommands.setUnitAttack(out, testEnemyUnit, testEnemy.getAttack());
+		// BasicCommands.setUnitHealth(out, testEnemyUnit, testEnemy.getHealth());
+
         // load and shuffle decks
 		// getPlayer1Cards(2) returns 20 cards (10 unique × 2 copies)
         
         List<Card> p1Deck = OrderedCardLoader.getPlayer1Cards(2);
-        Collections.shuffle(p1Deck);
+        // Collections.shuffle(p1Deck);
         gameState.setPlayer1Deck(p1Deck);
 
         List<Card> p2Deck = OrderedCardLoader.getPlayer2Cards(2);
-        Collections.shuffle(p2Deck);
+        // Collections.shuffle(p2Deck);
         gameState.setPlayer2Deck(p2Deck);
 
         // draw starting hands (3 cards each)
