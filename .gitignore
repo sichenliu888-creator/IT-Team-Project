@@ -53,3 +53,7 @@ local.properties
 .scala_dependencies
 .worksheet
 /bin/
+.DS_Store
+app/.DS_Store
+.sbtopts
+.vscode/
