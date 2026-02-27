@@ -21,8 +21,8 @@ public class GameState {
 	public boolean something = false;
 	
 	// board
-    private Tile[][] board = new Tile[9][5];           // Visual tiles
-    private GameUnit[][] unitBoard = new GameUnit[9][5]; // Units on tiles
+    private Tile[][] board = new Tile[10][6];           // Visual tiles
+    private GameUnit[][] unitBoard = new GameUnit[10][6]; // Units on tiles
 
     // players
     private Player player1;
@@ -58,34 +58,34 @@ public class GameState {
 
     // board methods
     public Tile getTile(int x, int y) {
-        if (x >= 0 && x < 9 && y >= 0 && y < 5) {
+        if (x >= 1 && x <= 9 && y >= 1 && y <= 5) {
             return board[x][y];
         }
         return null;
     }
 
     public void setTile(int x, int y, Tile tile) {
-        if (x >= 0 && x < 9 && y >= 0 && y < 5) {
+        if (x >= 1 && x <= 9 && y >= 1 && y <= 5) {
             board[x][y] = tile;
         }
     }
 
     public GameUnit getUnitOnTile(int x, int y) {
-        if (x >= 0 && x < 9 && y >= 0 && y < 5) {
+        if (x >= 1 && x <= 9 && y >= 1 && y <= 5) {
             return unitBoard[x][y];
         }
         return null;
     }
 
     public void placeUnit(int x, int y, GameUnit unit) {
-        if (x >= 0 && x < 9 && y >= 0 && y < 5) {
+        if (x >= 1 && x <= 9 && y >= 1 && y <= 5) {
             unitBoard[x][y] = unit;
             unit.setPosition(x, y);
         }
     }
 
     public void removeUnit(int x, int y) {
-        if (x >= 0 && x < 9 && y >= 0 && y < 5) {
+        if (x >= 1 && x <= 9 && y >= 1 && y <= 5) {
             unitBoard[x][y] = null;
         }
     }
