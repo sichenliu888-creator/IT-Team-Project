@@ -3,7 +3,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "ITSD Card Game 25-26",
     version := "1.1",
-    scalaVersion := "2.13.1",
+    scalaVersion := "2.13.10",
     // https://github.com/sbt/junit-interface
     testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-v"),
     libraryDependencies ++= Seq(

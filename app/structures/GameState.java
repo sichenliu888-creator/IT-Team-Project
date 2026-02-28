@@ -15,12 +15,12 @@ import structures.basic.Tile;
  */
 public class GameState {
 
-	
-	public boolean gameInitalised = false;
-	
-	public boolean something = false;
-	
-	// board
+
+    public boolean gameInitalised = false;
+
+    public boolean something = false;
+
+    // board
     private Tile[][] board = new Tile[10][6];           // Visual tiles
     private GameUnit[][] unitBoard = new GameUnit[10][6]; // Units on tiles
 
@@ -103,14 +103,29 @@ public class GameState {
     }
 
     // selection methods
-    public GameUnit getSelectedUnit() { return selectedUnit; }
-    public void setSelectedUnit(GameUnit unit) { this.selectedUnit = unit; }
+    public GameUnit getSelectedUnit() {
+        return selectedUnit;
+    }
 
-    public Card getSelectedCard() { return selectedCard; }
-    public void setSelectedCard(Card card) { this.selectedCard = card; }
+    public void setSelectedUnit(GameUnit unit) {
+        this.selectedUnit = unit;
+    }
 
-    public int getSelectedCardHandPosition() { return selectedCardHandPosition; }
-    public void setSelectedCardHandPosition(int pos) { this.selectedCardHandPosition = pos; }
+    public Card getSelectedCard() {
+        return selectedCard;
+    }
+
+    public void setSelectedCard(Card card) {
+        this.selectedCard = card;
+    }
+
+    public int getSelectedCardHandPosition() {
+        return selectedCardHandPosition;
+    }
+
+    public void setSelectedCardHandPosition(int pos) {
+        this.selectedCardHandPosition = pos;
+    }
 
     public void clearSelection() {
         this.selectedUnit = null;
@@ -123,52 +138,193 @@ public class GameState {
     }
 
     // highlight methods
-    public List<Tile> getHighlightedTiles() { return highlightedTiles; }
-    public void setHighlightedTiles(List<Tile> tiles) { this.highlightedTiles = tiles; }
+    public List<Tile> getHighlightedTiles() {
+        return highlightedTiles;
+    }
 
-    public List<Tile> getAttackHighlightedTiles() { return attackHighlightedTiles; }
-    public void setAttackHighlightedTiles(List<Tile> tiles) { this.attackHighlightedTiles = tiles; }
+    public void setHighlightedTiles(List<Tile> tiles) {
+        this.highlightedTiles = tiles;
+    }
+
+    public List<Tile> getAttackHighlightedTiles() {
+        return attackHighlightedTiles;
+    }
+
+    public void setAttackHighlightedTiles(List<Tile> tiles) {
+        this.attackHighlightedTiles = tiles;
+    }
 
     // player methods
-    public Player getPlayer1() { return player1; }
-    public void setPlayer1(Player player1) { this.player1 = player1; }
+    public Player getPlayer1() {
+        return player1;
+    }
 
-    public Player getPlayer2() { return player2; }
-    public void setPlayer2(Player player2) { this.player2 = player2; }
+    public void setPlayer1(Player player1) {
+        this.player1 = player1;
+    }
 
-    public GameUnit getPlayer1Avatar() { return player1Avatar; }
-    public void setPlayer1Avatar(GameUnit avatar) { this.player1Avatar = avatar; }
+    public Player getPlayer2() {
+        return player2;
+    }
 
-    public GameUnit getPlayer2Avatar() { return player2Avatar; }
-    public void setPlayer2Avatar(GameUnit avatar) { this.player2Avatar = avatar; }
+    public void setPlayer2(Player player2) {
+        this.player2 = player2;
+    }
+
+    public GameUnit getPlayer1Avatar() {
+        return player1Avatar;
+    }
+
+    public void setPlayer1Avatar(GameUnit avatar) {
+        this.player1Avatar = avatar;
+    }
+
+    public GameUnit getPlayer2Avatar() {
+        return player2Avatar;
+    }
+
+    public void setPlayer2Avatar(GameUnit avatar) {
+        this.player2Avatar = avatar;
+    }
 
     // deck methods
-    public List<Card> getPlayer1Deck() { return player1Deck; }
-    public void setPlayer1Deck(List<Card> deck) { this.player1Deck = deck; }
+    public List<Card> getPlayer1Deck() {
+        return player1Deck;
+    }
 
-    public List<Card> getPlayer2Deck() { return player2Deck; }
-    public void setPlayer2Deck(List<Card> deck) { this.player2Deck = deck; }
+    public void setPlayer1Deck(List<Card> deck) {
+        this.player1Deck = deck;
+    }
+
+    public List<Card> getPlayer2Deck() {
+        return player2Deck;
+    }
+
+    public void setPlayer2Deck(List<Card> deck) {
+        this.player2Deck = deck;
+    }
 
     // hand methods
-    public List<Card> getPlayer1Hand() { return player1Hand; }
-    public void setPlayer1Hand(List<Card> hand) { this.player1Hand = hand; }
+    public List<Card> getPlayer1Hand() {
+        return player1Hand;
+    }
 
-    public List<Card> getPlayer2Hand() { return player2Hand; }
-    public void setPlayer2Hand(List<Card> hand) { this.player2Hand = hand; }
+    public void setPlayer1Hand(List<Card> hand) {
+        this.player1Hand = hand;
+    }
+
+    public List<Card> getPlayer2Hand() {
+        return player2Hand;
+    }
+
+    public void setPlayer2Hand(List<Card> hand) {
+        this.player2Hand = hand;
+    }
 
     // turn methods
-    public int getCurrentTurn() { return currentTurn; }
-    public void setCurrentTurn(int turn) { this.currentTurn = turn; }
+    public int getCurrentTurn() {
+        return currentTurn;
+    }
 
-    public int getTurnNumber() { return turnNumber; }
-    public void setTurnNumber(int turnNumber) { this.turnNumber = turnNumber; }
+    public void setCurrentTurn(int turn) {
+        this.currentTurn = turn;
+    }
+
+    public int getTurnNumber() {
+        return turnNumber;
+    }
+
+    public void setTurnNumber(int turnNumber) {
+        this.turnNumber = turnNumber;
+    }
 
     // amination lock
-    public boolean isUnitMoving() { return unitMoving; }
-    public void setUnitMoving(boolean moving) { this.unitMoving = moving; }
+    public boolean isUnitMoving() {
+        return unitMoving;
+    }
+
+    public void setUnitMoving(boolean moving) {
+        this.unitMoving = moving;
+    }
 
     // game over
-    public boolean isGameOver() { return gameOver; }
-    public void setGameOver(boolean gameOver) { this.gameOver = gameOver; }
+    public boolean isGameOver() {
+        return gameOver;
+    }
 
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
+
+
+    // Turn switching and core logic (Sprint 2 - Yitong)
+
+    /**
+     * Handles all core logic for switching turns
+     */
+    public void switchTurn() {
+        // Current player draws a card at the end of their turn
+        drawCardForCurrentPlayer();
+
+        // Switch turn flag and update turn number
+        if (currentTurn == 1) {
+            // If Player 1 finishes, switch to Player 2
+            currentTurn = 2;
+        } else {
+            // If Player 2 finishes, switch back to Player 1
+            // A full round ends, so increment global turn number
+            currentTurn = 1;
+            turnNumber++;
+        }
+
+        // Reset/refresh mana for the new turn's player
+        if (currentTurn == 1) {
+            player1.refreshMana(turnNumber);
+            // Player 2's unused mana is lost，Set to 0
+            player2.setMana(0);
+        } else {
+            player2.refreshMana(turnNumber);
+            player1.setMana(0);
+        }
+
+        // Reset action states (movement and attack) for all units of the new active player
+        resetActivePlayerUnits();
+
+        // Clear any leftover selections and highlights from the previous player
+        clearSelection();
+        highlightedTiles.clear();
+        attackHighlightedTiles.clear();
+    }
+
+    /**
+     * Draws a card for the player whose turn is currently ending.
+     */
+    private void drawCardForCurrentPlayer() {
+        List<Card> deck = (currentTurn == 1) ? player1Deck : player2Deck;
+        List<Card> hand = (currentTurn == 1) ? player1Hand : player2Hand;
+
+        // Ensure deck is not empty and hand is not full (assuming max 6 cards in hand)
+        if (!deck.isEmpty() && hand.size() < 6) {
+            Card drawnCard = deck.remove(0); // Remove the top card from the deck
+            hand.add(drawnCard);             // Add to hand
+        }
+    }
+
+    /**
+     * Iterates through the board to find units belonging to the new active player
+     * and resets their action/attack status.
+     */
+    private void resetActivePlayerUnits() {
+        for (int x = 1; x <= 9; x++) {
+            for (int y = 1; y <= 5; y++) {
+                GameUnit unit = unitBoard[x][y];
+                if (unit != null) {
+                    // If the owner of this unit is the current turn's player, reset its action state.
+                    if (unit.getOwner() == currentTurn) {
+                        unit.resetTurnFlags();
+                    }
+                }
+            }
+        }
+    }
 }
