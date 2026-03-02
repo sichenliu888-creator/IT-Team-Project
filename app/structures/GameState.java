@@ -311,7 +311,10 @@ public class GameState {
         if (!deck.isEmpty() && hand.size() < 6) {
             Card drawnCard = deck.remove(0); // Remove the top card from the deck
             hand.add(drawnCard);             // Add to hand
-            BasicCommands.drawCard(out, drawnCard, hand.size(), 0); // Draw in the UI
+            if (currentTurn == 1) {
+                BasicCommands.drawCard(out, drawnCard, hand.size(), 0); // Draw in the UI
+                // System.out.println("Drawing card: " + drawnCard.getCardname());
+            }
         }
     }
 
