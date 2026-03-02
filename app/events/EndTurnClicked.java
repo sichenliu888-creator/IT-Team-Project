@@ -22,7 +22,7 @@ public class EndTurnClicked implements EventProcessor{
 	@Override
 	public void processEvent(ActorRef out, GameState gameState, JsonNode message) {
 		// Execute all turn switching logic in the backend state machine
-		gameState.switchTurn();
+		gameState.switchTurn(out);
 
 		//------
 		// The following 4 lines are test code, only displayed in the terminal and do not affect game logic

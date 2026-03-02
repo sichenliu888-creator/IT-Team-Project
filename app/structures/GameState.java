@@ -262,10 +262,11 @@ public class GameState {
 
     /**
      * Handles all core logic for switching turns
+     * @param out
      */
-    public void switchTurn() {
+    public void switchTurn(ActorRef out) {
         // Current player draws a card at the end of their turn
-        drawCardForCurrentPlayer();
+        drawCardForCurrentPlayer(out);
 
         // Switch turn flag and update turn number
         if (currentTurn == 1) {
