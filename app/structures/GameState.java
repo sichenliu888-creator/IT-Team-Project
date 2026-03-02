@@ -2,6 +2,7 @@ package structures;
 import java.util.ArrayList;
 import java.util.List;
 
+import commands.BasicCommands;
 import structures.basic.Card;
 import structures.basic.Player;
 import structures.basic.Tile;
@@ -298,8 +299,9 @@ public class GameState {
 
     /**
      * Draws a card for the player whose turn is currently ending.
+     * @param out
      */
-    private void drawCardForCurrentPlayer() {
+    private void drawCardForCurrentPlayer(ActorRef out) {
         List<Card> deck = (currentTurn == 1) ? player1Deck : player2Deck;
         List<Card> hand = (currentTurn == 1) ? player1Hand : player2Hand;
 
@@ -307,6 +309,7 @@ public class GameState {
         if (!deck.isEmpty() && hand.size() < 6) {
             Card drawnCard = deck.remove(0); // Remove the top card from the deck
             hand.add(drawnCard);             // Add to hand
+            BasicCommands.drawCard(out, drawnCard, hand.size(), 0); // Draw in the UI
         }
     }
 
