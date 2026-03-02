@@ -1,5 +1,6 @@
 package app.systems;
 
+import app.actions.EndTurnAction;
 import app.actions.GameAction;
 import app.actions.PlayCardAction;
 import app.effects.GameEffect;
@@ -9,10 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * ASSUMPTIONS:
- * - GameEngine is the ONLY entry point for applying actions (doc).
- * - Validation is in Rules; mutation in Systems.
- * - Sprint 2 only routes PlayCardAction to CardSystem.
+ * GameEngine routes actions to systems.
  */
 public final class GameEngine {
 
@@ -25,7 +23,10 @@ public final class GameEngine {
             return CardSystem.playCard(state, (PlayCardAction) action);
         }
 
-        // Sprint 2 scope: ignore other actions
+        if (action instanceof EndTurnAction) {
+            return TurnSystem.endTurn(state, (EndTurnAction) action);
+        }
+
         return Collections.emptyList();
     }
 }
