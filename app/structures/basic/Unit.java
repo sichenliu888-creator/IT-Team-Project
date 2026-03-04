@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 package structures.basic;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -110,7 +109,6 @@ public class Unit {
 	
 	
 }
-=======
 package app.structures.basic;
 
 import app.abilities.Status;
@@ -154,4 +152,4 @@ public class Unit {
     public void addStatus(Status s) { statuses.add(s); }
     public void removeStatus(Status s) { statuses.remove(s); }
 }
->>>>>>> 4bd31c6 (Sprint2: add core state model + summon rules)
+

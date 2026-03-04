@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 package structures;
 import java.util.ArrayList;
 import java.util.List;
@@ -329,7 +328,6 @@ public class GameState {
         }
     }
 }
-=======
 package app.structures;
 
 import app.structures.basic.Board;
@@ -392,4 +390,4 @@ public class GameState {
         board.setUnitAt(to, unitId);
     }
 }
->>>>>>> 4bd31c6 (Sprint2: add core state model + summon rules)
+

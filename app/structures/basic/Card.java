@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 package structures.basic;
 
 
@@ -88,7 +87,6 @@ public class Card {
 
 	
 }
-=======
 package app.structures.basic;
 
 /**
@@ -121,4 +119,4 @@ public class Card {
     public int getAttack() { return attack; }
     public int getHealth() { return health; }
 }
->>>>>>> 4bd31c6 (Sprint2: add core state model + summon rules)
+
