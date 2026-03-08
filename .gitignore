@@ -57,3 +57,16 @@ local.properties
 app/.DS_Store
 .sbtopts
 .vscode/
+
+# IntelliJ
+.idea/
+*.iml
+*.iws
+out/
+
+# SBT/Scala
+.bsp/
+target/
+project/target/
+project/project/
+
