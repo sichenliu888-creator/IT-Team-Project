@@ -1,4 +1,4 @@
-package app.effects;
+package effects;
 
 /**
  * ASSUMPTIONS:

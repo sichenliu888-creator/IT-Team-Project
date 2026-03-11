@@ -1,4 +1,4 @@
-package app.abilities;
+package abilities;
 
 /**
  * ASSUMPTIONS:
