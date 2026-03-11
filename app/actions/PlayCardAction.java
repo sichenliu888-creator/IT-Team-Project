@@ -1,6 +1,6 @@
-package app.actions;
+package actions;
 
-import app.structures.basic.Pos;
+import structures.Pos;
 
 /**
  * ASSUMPTIONS:

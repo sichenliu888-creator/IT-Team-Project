@@ -1,11 +1,9 @@
-package app.structures;
+package structures;
 
-import app.structures.basic.Card;
-import app.structures.basic.Deck;
-import app.structures.basic.Hand;
+import structures.basic.Card;
 
 /**
- * PlayerState extended for Sprint 2 draw support.
+ * Stores mana, deck, hand, avatarId and graveyard for one player.
  */
 public class PlayerState {
     private int currentMana;

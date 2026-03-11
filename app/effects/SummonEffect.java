@@ -1,6 +1,6 @@
-package app.effects;
+package effects;
 
-import app.structures.basic.Pos;
+import structures.Pos;
 
 /**
  * ASSUMPTIONS:

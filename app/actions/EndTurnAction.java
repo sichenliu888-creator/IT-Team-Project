@@ -1,4 +1,4 @@
-package app.actions;
+package actions;
 
 /**
  * ASSUMPTIONS:
