@@ -1,16 +1,17 @@
-package app.systems;
+package systems;
 
-import app.actions.EndTurnAction;
-import app.actions.GameAction;
-import app.actions.PlayCardAction;
-import app.effects.GameEffect;
-import app.structures.GameState;
+import actions.EndTurnAction;
+import actions.GameAction;
+import actions.PlayCardAction;
+import effects.GameEffect;
+import structures.GameState;
 
 import java.util.Collections;
 import java.util.List;
 
 /**
  * GameEngine routes actions to systems.
+ * TODO Fix 3: wire to real event handlers.
  */
 public final class GameEngine {
 
