@@ -1,7 +1,6 @@
 package events;
 
 import java.util.List;
-import java.util.Collections;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -150,11 +149,9 @@ public class Initalize implements EventProcessor{
         try { Thread.sleep(50); } catch (InterruptedException e) { e.printStackTrace(); }
         
         List<Card> p1Deck = OrderedCardLoader.getPlayer1Cards(2);
-        // Collections.shuffle(p1Deck);
         gameState.setPlayer1Deck(p1Deck);
 
         List<Card> p2Deck = OrderedCardLoader.getPlayer2Cards(2);
-        // Collections.shuffle(p2Deck);
         gameState.setPlayer2Deck(p2Deck);
 
         // draw starting hands (3 cards each)
