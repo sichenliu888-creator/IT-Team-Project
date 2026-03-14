@@ -111,15 +111,15 @@ public class Initalize implements EventProcessor{
 
         // draw on screen
         BasicCommands.drawUnit(out, p1AvatarUnit, p1AvatarTile);
-        try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace(); }
+        try { Thread.sleep(200); } catch (InterruptedException e) { e.printStackTrace(); }
         
         // show attack value
         BasicCommands.setUnitAttack(out, p1AvatarUnit, 2);
-        try { Thread.sleep(50); } catch (InterruptedException e) { e.printStackTrace(); }
+        try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace(); }
         
         // show health value
         BasicCommands.setUnitHealth(out, p1AvatarUnit, 20);
-        try { Thread.sleep(50); } catch (InterruptedException e) { e.printStackTrace(); }
+        try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace(); }
 
         // create and place player 2 avatar
         // position: (7, 2) right side, middle row
@@ -148,34 +148,6 @@ public class Initalize implements EventProcessor{
         
         BasicCommands.setUnitHealth(out, p2AvatarUnit, 20);
         try { Thread.sleep(50); } catch (InterruptedException e) { e.printStackTrace(); }
-
-		// // ----------------------
-		// // Sprint1 combat test unit (TEMP)
-		// // ----------------------
-
-		// int testUnitId = gameState.getAndIncrementUnitId();
-
-		// Unit testEnemyUnit = BasicObjectBuilders.loadUnit(
-		// 	StaticConfFiles.aiAvatar,
-		// 	testUnitId,
-		// 	Unit.class
-		// );
-
-		// // put a temp AI test unit near P1 avatar (3,3)
-		// Tile testTile = gameState.getTile(3, 3);
-		// testEnemyUnit.setPositionByTile(testTile);
-
-		// // GameUnit wrapper (owner=2, attack=2, health=2, not avatar)
-		// GameUnit testEnemy = new GameUnit(testEnemyUnit, 2, 2, 2, false);
-
-		// gameState.placeUnit(3, 3, testEnemy);
-
-		// BasicCommands.drawUnit(out, testEnemyUnit, testTile);
-		// BasicCommands.setUnitAttack(out, testEnemyUnit, testEnemy.getAttack());
-		// BasicCommands.setUnitHealth(out, testEnemyUnit, testEnemy.getHealth());
-
-        // load and shuffle decks
-		// getPlayer1Cards(2) returns 20 cards (10 unique × 2 copies)
         
         List<Card> p1Deck = OrderedCardLoader.getPlayer1Cards(2);
         // Collections.shuffle(p1Deck);
