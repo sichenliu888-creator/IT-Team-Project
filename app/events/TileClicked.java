@@ -1,278 +1,311 @@
 package events;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 import akka.actor.ActorRef;
+import actions.PlayCardAction;
+import commands.BasicCommands;
 import commands.BasicCommands;
 import structures.GameState;
 import structures.GameUnit;
 import structures.basic.Card;
+import structures.Pos;
+import structures.GameUnit;
+import structures.basic.Card;
 import structures.basic.Tile;
-import structures.basic.Unit;
-import structures.basic.UnitAnimationType;
-import systems.CombatSystem;
-import systems.MovementSystem;
-import utils.BasicObjectBuilders;
+import systems.GameEngine;
 
-import java.util.List;
-
-/**
- * Indicates that the user has clicked a tile on the board.
- *
- * { messageType = "tileClicked", tilex = <x>, tiley = <y> }
- */
 public class TileClicked implements EventProcessor {
+
+    private static final int NORMAL = 0;
+    private static final int MOVE = 1;
+    private static final int ATTACK = 2;
 
     @Override
     public void processEvent(ActorRef out, GameState gameState, JsonNode message) {
-        if (gameState.isGameOver() || gameState.isUnitMoving()) return;
 
-        int tilex = message.get("tilex").asInt();
-        int tiley = message.get("tiley").asInt();
+        if (!gameState.gameInitalised) return;
+        if (gameState.isGameOver()) return;
+        if (gameState.isUnitMoving()) return;
 
-        Tile clickedTile = gameState.getTile(tilex, tiley);
+        int x = message.get("tilex").asInt();
+        int y = message.get("tiley").asInt();
+
+        Tile clickedTile = gameState.getTile(x, y);
         if (clickedTile == null) return;
 
-        // --- Branch 1: A card is currently selected → summon attempt ---
-        if (gameState.getSelectedCard() != null) {
-            handleCardSelected(out, gameState, tilex, tiley, clickedTile);
+        Card selectedCard = gameState.getSelectedCard();
+        GameUnit selectedUnit = gameState.getSelectedUnit();
+        GameUnit clickedUnit = gameState.getUnitOnTile(x, y);
+
+        // =====================================
+        // CARD PLAY (Sprint3)
+        // =====================================
+        if (selectedCard != null) {
+            handleCardPlay(out, gameState, selectedCard, x, y);
             return;
         }
 
-        // --- Branch 2: A unit is currently selected ---
-        if (gameState.getSelectedUnit() != null) {
-            handleUnitSelected(out, gameState, tilex, tiley, clickedTile);
-            return;
-        }
+        // =====================================
+        // UNIT ACTION
+        // =====================================
+        if (selectedUnit != null) {
 
-        // --- Branch 3: Nothing selected → try to select a friendly unit ---
-        handleNoSelection(out, gameState, tilex, tiley);
-    }
+            // ATTACK
+            if (clickedUnit != null
+                    && clickedUnit.getOwner() != selectedUnit.getOwner()
+                    && isAttackHighlighted(gameState, clickedTile)
+                    && !selectedUnit.hasAttacked()) {
 
-    // -------------------------------------------------------------------------
-    // Card selected: try to summon on the clicked tile
-    // -------------------------------------------------------------------------
-    private void handleCardSelected(ActorRef out, GameState gameState,
-                                    int tilex, int tiley, Tile clickedTile) {
-        Card card = gameState.getSelectedCard();
-        int handPosition = gameState.getSelectedCardHandPosition();
+                performAttack(out, gameState, selectedUnit, clickedUnit);
 
-        // Check if clicked tile is a valid summon tile (highlighted)
-        boolean isValidSummon = gameState.getHighlightedTiles().stream()
-                .anyMatch(t -> t.getTilex() == tilex && t.getTiley() == tiley);
-
-        // Clear highlights and card selection first
-        OtherClicked.clearHighlights(out, gameState);
-        BasicCommands.drawCard(out, card, handPosition, 0);
-        try { Thread.sleep(50); } catch (InterruptedException e) { e.printStackTrace(); }
-        gameState.clearSelection();
-
-        if (!isValidSummon) return;
-
-        // Deduct mana
-        int manaCost = card.getManacost();
-        gameState.getPlayer1().setMana(gameState.getPlayer1().getMana() - manaCost);
-        BasicCommands.setPlayer1Mana(out, gameState.getPlayer1());
-        try { Thread.sleep(50); } catch (InterruptedException e) { e.printStackTrace(); }
-
-        // Remove card from hand and redraw hand
-        List<Card> hand = gameState.getPlayer1Hand();
-        hand.remove(handPosition - 1);
-        // Redraw remaining cards at correct positions
-        for (int i = 0; i < hand.size(); i++) {
-            BasicCommands.drawCard(out, hand.get(i), i + 1, 0);
-            try { Thread.sleep(20); } catch (InterruptedException e) { e.printStackTrace(); }
-        }
-        // Delete the slot that no longer exists (if hand shrunk)
-        BasicCommands.deleteCard(out, hand.size() + 1);
-        try { Thread.sleep(20); } catch (InterruptedException e) { e.printStackTrace(); }
-
-        if (card.getIsCreature()) {
-            summonUnit(out, gameState, card, tilex, tiley, clickedTile);
-        }
-        // Spell cards: add spell effect logic here in future sprints
-    }
-
-    private void summonUnit(ActorRef out, GameState gameState, Card card,
-                            int tilex, int tiley, Tile tile) {
-        int unitId = gameState.getAndIncrementUnitId();
-        Unit unitBase = BasicObjectBuilders.loadUnit(card.getUnitConfig(), unitId, Unit.class);
-        if (unitBase == null) return;
-
-        unitBase.setPositionByTile(tile);
-
-        int attack = card.getBigCard() != null ? card.getBigCard().getAttack() : 1;
-        int health = card.getBigCard() != null ? card.getBigCard().getHealth() : 1;
-
-        // Summoning sickness: hasMoved + hasAttacked start true, reset next turn
-        GameUnit newUnit = new GameUnit(unitBase, 1, attack, health, false);
-        newUnit.setHasMoved(true);
-        newUnit.setHasAttacked(true);
-        newUnit.setCardName(card.getCardname());
-
-        gameState.placeUnit(tilex, tiley, newUnit);
-
-        BasicCommands.drawUnit(out, unitBase, tile);
-        try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace(); }
-
-        BasicCommands.setUnitAttack(out, unitBase, attack);
-        try { Thread.sleep(50); } catch (InterruptedException e) { e.printStackTrace(); }
-
-        BasicCommands.setUnitHealth(out, unitBase, health);
-        try { Thread.sleep(50); } catch (InterruptedException e) { e.printStackTrace(); }
-    }
-
-    // -------------------------------------------------------------------------
-    // Unit selected: handle move, attack, re-select, or deselect
-    // -------------------------------------------------------------------------
-    private void handleUnitSelected(ActorRef out, GameState gameState,
-                                    int tilex, int tiley, Tile clickedTile) {
-        GameUnit selected = gameState.getSelectedUnit();
-
-        // Check if clicked on a movement tile
-        boolean isMoveTarget = gameState.getHighlightedTiles().stream()
-                .anyMatch(t -> t.getTilex() == tilex && t.getTiley() == tiley);
-
-        // Check if clicked on an attack tile
-        boolean isAttackTarget = gameState.getAttackHighlightedTiles().stream()
-                .anyMatch(t -> t.getTilex() == tilex && t.getTiley() == tiley);
-
-        GameUnit unitOnTile = gameState.getUnitOnTile(tilex, tiley);
-
-        // --- Move ---
-        if (isMoveTarget && !selected.hasMoved()) {
-            OtherClicked.clearHighlights(out, gameState);
-            gameState.clearSelection();
-
-            // Animate movement
-            gameState.moveUnit(selected, tilex, tiley);
-            BasicCommands.moveUnitToTile(out, selected.getUnit(), clickedTile);
-            selected.setHasMoved(true);
-
-            // Wait for UnitStopped event to unlock, but show attack highlights now
-            // We re-select the unit to show new attack tiles
-            List<Tile> newAttackTiles = MovementSystem.getAttackableTiles(gameState, selected);
-            if (!selected.hasAttacked() && !newAttackTiles.isEmpty()) {
-                for (Tile t : newAttackTiles) {
-                    BasicCommands.drawTile(out, t, 2);
-                    try { Thread.sleep(5); } catch (InterruptedException e) { e.printStackTrace(); }
-                }
-                gameState.setAttackHighlightedTiles(newAttackTiles);
-                gameState.setSelectedUnit(selected);
-            }
-            return;
-        }
-
-        // --- Attack ---
-        if (isAttackTarget && !selected.hasAttacked() && unitOnTile != null
-                && unitOnTile.getOwner() != selected.getOwner()) {
-
-            OtherClicked.clearHighlights(out, gameState);
-            gameState.clearSelection();
-
-            // If the attacker hasn't moved and isn't adjacent, move adjacent first
-            if (!selected.hasMoved() && !isAdjacent(selected.getTileX(), selected.getTileY(), tilex, tiley)) {
-                // Find a move tile adjacent to the target
-                Tile moveTile = findMoveAdjacentTo(gameState, selected, tilex, tiley);
-                if (moveTile != null) {
-                    gameState.moveUnit(selected, moveTile.getTilex(), moveTile.getTiley());
-                    BasicCommands.moveUnitToTile(out, selected.getUnit(), moveTile);
-                    selected.setHasMoved(true);
-                    // Brief wait for movement
-                    try { Thread.sleep(1500); } catch (InterruptedException e) { e.printStackTrace(); }
-                }
+                clearHighlights(out, gameState);
+                gameState.setSelectedUnit(null);
+                return;
             }
 
-            CombatSystem.executeAttack(out, gameState, selected, unitOnTile);
-            if (!gameState.isGameOver()) {
-                selected.setHasAttacked(true);
+            // MOVE
+            if (clickedUnit == null
+                    && isMoveHighlighted(gameState, clickedTile)
+                    && !selectedUnit.hasMoved()) {
+
+                gameState.setUnitMoving(true);
+
+                BasicCommands.moveUnitToTile(out,
+                        selectedUnit.getUnit(),
+                        clickedTile);
+
+                gameState.moveUnit(selectedUnit, x, y);
+                selectedUnit.setHasMoved(true);
+
+                clearHighlights(out, gameState);
+                gameState.setSelectedUnit(null);
+                return;
             }
+
+            // RESELECT FRIENDLY
+            if (clickedUnit != null
+                    && clickedUnit.getOwner() == gameState.getCurrentTurn()) {
+
+                clearHighlights(out, gameState);
+                gameState.setSelectedUnit(clickedUnit);
+                highlightActions(out, gameState, clickedUnit);
+                return;
+            }
+
+            clearHighlights(out, gameState);
+            gameState.setSelectedUnit(null);
             return;
         }
 
-        // --- Re-select same unit: deselect ---
-        if (unitOnTile == selected) {
-            OtherClicked.clearHighlights(out, gameState);
-            gameState.clearSelection();
+        // =====================================
+        // SELECT UNIT
+        // =====================================
+        if (clickedUnit != null
+                && clickedUnit.getOwner() == 1
+                && gameState.getCurrentTurn() == 1) {
+
+            clearHighlights(out, gameState);
+            gameState.setSelectedUnit(clickedUnit);
+            highlightActions(out, gameState, clickedUnit);
             return;
         }
 
-        // --- Click on another friendly unit: switch selection ---
-        if (unitOnTile != null && unitOnTile.getOwner() == gameState.getCurrentTurn()
-                && canUnitAct(unitOnTile)) {
-            OtherClicked.clearHighlights(out, gameState);
-            gameState.clearSelection();
-            selectUnit(out, gameState, unitOnTile);
-            return;
-        }
-
-        // --- Anything else: deselect ---
-        OtherClicked.clearHighlights(out, gameState);
+        clearHighlights(out, gameState);
         gameState.clearSelection();
     }
 
-    // -------------------------------------------------------------------------
-    // Nothing selected: try to select a friendly unit on the clicked tile
-    // -------------------------------------------------------------------------
-    private void handleNoSelection(ActorRef out, GameState gameState, int tilex, int tiley) {
-        GameUnit unit = gameState.getUnitOnTile(tilex, tiley);
-        if (unit == null) return;
-        if (unit.getOwner() != gameState.getCurrentTurn()) return;
-        if (!canUnitAct(unit)) return;
+    // =====================================
+    // CARD PLAY
+    // =====================================
 
-        selectUnit(out, gameState, unit);
-    }
+    private void handleCardPlay(ActorRef out,
+                                GameState gameState,
+                                Card card,
+                                int x,
+                                int y) {
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
+        int player = gameState.getCurrentTurn();
+        int handPos = gameState.getSelectedCardHandPosition() - 1;
 
-    /** Highlights valid move and attack tiles for a unit and stores selection. */
-    private void selectUnit(ActorRef out, GameState gameState, GameUnit unit) {
-        gameState.setSelectedUnit(unit);
+        PlayCardAction action =
+                new PlayCardAction(player, handPos, new Pos(x, y));
 
-        // Movement highlights (mode 1 = blue) — only if unit hasn't moved
-        if (!unit.hasMoved()) {
-            List<Tile> moveTiles = MovementSystem.getValidMoveTiles(gameState, unit);
-            for (Tile t : moveTiles) {
-                BasicCommands.drawTile(out, t, 1);
-                try { Thread.sleep(5); } catch (InterruptedException e) { e.printStackTrace(); }
-            }
-            gameState.setHighlightedTiles(moveTiles);
+        GameEngine.apply(gameState, action);
+
+        GameUnit unit = gameState.getUnitOnTile(x, y);
+
+        if (card.getIsCreature() && unit != null) {
+
+            Tile tile = gameState.getTile(x, y);
+
+            BasicCommands.drawUnit(out, unit.getUnit(), tile);
+            BasicCommands.setUnitAttack(out, unit.getUnit(), unit.getAttack());
+            BasicCommands.setUnitHealth(out, unit.getUnit(), unit.getHealth());
         }
 
-        // Attack highlights (mode 2 = red) — only if unit hasn't attacked
-        if (!unit.hasAttacked()) {
-            List<Tile> atkTiles = unit.hasMoved()
-                    ? MovementSystem.getAttackableTiles(gameState, unit)
-                    : MovementSystem.getAllAttackableTiles(gameState, unit);
-            for (Tile t : atkTiles) {
-                BasicCommands.drawTile(out, t, 2);
-                try { Thread.sleep(5); } catch (InterruptedException e) { e.printStackTrace(); }
-            }
-            gameState.setAttackHighlightedTiles(atkTiles);
+        refreshMana(out, gameState);
+        refreshHand(out, gameState);
+
+        gameState.setSelectedCard(null);
+        gameState.setSelectedCardHandPosition(-1);
+
+        clearHighlights(out, gameState);
+    }
+
+    // =====================================
+    // HIGHLIGHT
+    // =====================================
+
+    private void highlightActions(ActorRef out,
+                                  GameState gameState,
+                                  GameUnit unit) {
+
+        List<Tile> moves = computeMoves(gameState, unit);
+        List<Tile> attacks = computeAttacks(gameState, unit);
+
+        for (Tile t : moves)
+            BasicCommands.drawTile(out, t, MOVE);
+
+        for (Tile t : attacks)
+            BasicCommands.drawTile(out, t, ATTACK);
+
+        gameState.setHighlightedTiles(moves);
+        gameState.setAttackHighlightedTiles(attacks);
+    }
+
+    private boolean isMoveHighlighted(GameState gameState, Tile tile) {
+        for (Tile t : gameState.getHighlightedTiles())
+            if (t.getTilex()==tile.getTilex() && t.getTiley()==tile.getTiley())
+                return true;
+        return false;
+    }
+
+    private boolean isAttackHighlighted(GameState gameState, Tile tile) {
+        for (Tile t : gameState.getAttackHighlightedTiles())
+            if (t.getTilex()==tile.getTilex() && t.getTiley()==tile.getTiley())
+                return true;
+        return false;
+    }
+
+    // =====================================
+    // MOVEMENT
+    // =====================================
+
+    private List<Tile> computeMoves(GameState gameState, GameUnit unit) {
+
+        List<Tile> list = new ArrayList<>();
+
+        int ux = unit.getTileX();
+        int uy = unit.getTileY();
+
+        int[][] dirs = {
+                {1,0},{-1,0},{0,1},{0,-1},
+                {1,1},{1,-1},{-1,1},{-1,-1}
+        };
+
+        for (int[] d: dirs) {
+
+            int nx = ux + d[0];
+            int ny = uy + d[1];
+
+            Tile t = gameState.getTile(nx,ny);
+            if (t==null) continue;
+            if (gameState.getUnitOnTile(nx,ny)!=null) continue;
+
+            list.add(t);
         }
+
+        return list;
     }
 
-    private boolean canUnitAct(GameUnit unit) {
-        return !unit.hasMoved() || !unit.hasAttacked();
-    }
+    // =====================================
+    // ATTACK
+    // =====================================
 
-    private boolean isAdjacent(int x1, int y1, int x2, int y2) {
-        return Math.abs(x1 - x2) <= 1 && Math.abs(y1 - y2) <= 1;
-    }
+    private List<Tile> computeAttacks(GameState gameState, GameUnit unit){
 
-    /**
-     * Finds a valid move tile that is adjacent to the target position.
-     * Used for move-then-attack when the attacker is not yet adjacent.
-     */
-    private Tile findMoveAdjacentTo(GameState gameState, GameUnit unit, int targetX, int targetY) {
-        List<Tile> moveTiles = MovementSystem.getValidMoveTiles(gameState, unit);
-        for (Tile t : moveTiles) {
-            if (isAdjacent(t.getTilex(), t.getTiley(), targetX, targetY)) {
-                return t;
-            }
+        List<Tile> list = new ArrayList<>();
+
+        int ux=unit.getTileX();
+        int uy=unit.getTileY();
+
+        for(int dx=-1;dx<=1;dx++)
+        for(int dy=-1;dy<=1;dy++){
+
+            if(dx==0 && dy==0) continue;
+
+            int nx=ux+dx;
+            int ny=uy+dy;
+
+            Tile t=gameState.getTile(nx,ny);
+            if(t==null) continue;
+
+            GameUnit target=gameState.getUnitOnTile(nx,ny);
+
+            if(target!=null && target.getOwner()!=unit.getOwner())
+                list.add(t);
         }
-        return null;
+
+        return list;
+    }
+
+    private void performAttack(ActorRef out,
+                               GameState gameState,
+                               GameUnit attacker,
+                               GameUnit defender){
+
+        defender.takeDamage(attacker.getAttack());
+
+        if(defender.isDead()){
+            gameState.removeUnit(defender.getTileX(),defender.getTileY());
+            BasicCommands.deleteUnit(out, defender.getUnit());
+        }else{
+            BasicCommands.setUnitHealth(out,
+                    defender.getUnit(),
+                    defender.getHealth());
+        }
+
+        attacker.setHasAttacked(true);
+        attacker.setHasMoved(true);
+    }
+
+    // =====================================
+    // UI
+    // =====================================
+
+    private void refreshMana(ActorRef out, GameState state){
+        BasicCommands.setPlayer1Mana(out,state.getPlayer1());
+        BasicCommands.setPlayer2Mana(out,state.getPlayer2());
+    }
+
+    private void refreshHand(ActorRef out, GameState state){
+
+        List<Card> hand =
+                state.getCurrentTurn()==1
+                        ? state.getPlayer1Hand()
+                        : state.getPlayer2Hand();
+
+        for(int i=1;i<=6;i++)
+            BasicCommands.deleteCard(out,i);
+
+        for(int i=0;i<hand.size() && i<6;i++)
+            BasicCommands.drawCard(out,hand.get(i),i+1,0);
+    }
+
+    private void clearHighlights(ActorRef out, GameState state){
+
+        List<Tile> all=new ArrayList<>();
+        all.addAll(state.getHighlightedTiles());
+        all.addAll(state.getAttackHighlightedTiles());
+
+        for(Tile t:all)
+            BasicCommands.drawTile(out,t,NORMAL);
+
+        state.getHighlightedTiles().clear();
+        state.getAttackHighlightedTiles().clear();
     }
 }

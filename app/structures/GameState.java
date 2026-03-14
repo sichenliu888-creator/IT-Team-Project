@@ -7,7 +7,7 @@ import commands.BasicCommands;
 import structures.basic.Card;
 import structures.basic.Player;
 import structures.basic.Tile;
-
+//
 /**
  * This class can be used to hold information about the on-going game.
  * Its created with the GameActor.
@@ -83,6 +83,11 @@ public class GameState {
         if (x >= 1 && x <= 9 && y >= 1 && y <= 5) {
             unitBoard[x][y] = unit;
             unit.setPosition(x, y);
+
+            Tile tile = board[x][y];
+            if (tile != null && unit.getUnit() != null) {
+                unit.getUnit().setPositionByTile(tile);
+            }
         }
     }
 
