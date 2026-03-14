@@ -8,7 +8,7 @@ import structures.GameUnit;
 import structures.basic.BigCard;
 import structures.basic.Card;
 import structures.basic.Player;
-import structures.basic.Pos;
+import structures.Pos;
 import structures.basic.Unit;
 import utils.BasicObjectBuilders;
 

@@ -1,6 +1,6 @@
 package effects;
 
-import structures.basic.Pos;
+import structures.Pos;
 
 import java.util.Collections;
 import java.util.List;

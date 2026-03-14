@@ -1,6 +1,6 @@
 package actions;
 
-import structures.basic.Pos;
+import structures.Pos;
 
 /**
  * Represents "player plays one card from hand to a target board position".

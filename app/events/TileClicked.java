@@ -12,7 +12,7 @@ import commands.BasicCommands;
 import structures.GameState;
 import structures.GameUnit;
 import structures.basic.Card;
-import structures.basic.Pos;
+import structures.Pos;
 import structures.GameUnit;
 import structures.basic.Card;
 import structures.basic.Tile;
